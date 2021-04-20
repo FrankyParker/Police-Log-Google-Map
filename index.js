@@ -9,7 +9,7 @@ var locations =[
     ['location 3','616 Medary Avenue Brookings SD']
 ];
 
-var infowindow = new google.maps.InfoWindow();
+
 
 /*creates the map object FP*/
 function initMap(){
@@ -19,22 +19,57 @@ zoom:15,
 center: {lat:43.5460, lng: -96.7313}
 }
 
+//Creates information window object
+infoWindow = new google.maps.InfoWindow();
+navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+		  var marker = new google.maps.Marker({
+		  position: pos,
+		  map: map,
+		  icon: myLocationImage
+		}); 
+          map.setCenter(pos);
+        },
+        () => {
+          handleLocationError(true, infoWindow, map.getCenter());
+        }
+      );
+
+//gets the html google map element
 const map = new google.maps.Map(document.getElementById("map"),options);
 
+//create the type of marker we want to use
+const image = {
+    url:'./pig.png',
+    scaledSize: new google.maps.Size(24,24)
+  };
+  
+ const myLocationImage={
+	url: './myLocation.svg',
+	scaledSize: new google.maps.Size(50,50)
+	}; 
+  
+ //Geocoding portion//
+//creates object for geocoding
 var geocoder = new google.maps.Geocoder();
-
+//Counting variable for access the address array.
 var marker, i;
-
+//Runs the geocode address function from the web scraped data.
 for (i = 0; i < locations.length; i++) {
   geocodeAddress(locations[i]);
 }
 
+//function to geocode the address and handle errors.
 function geocodeAddress(location) {
     geocoder.geocode( { 'address': location[1]}, function(results, status) {
     //alert(status);
       if (status == google.maps.GeocoderStatus.OK) {
   
-        //alert(results[0].geometry.location);
+        //alert(results[1].geometry.location);
         map.setCenter(results[1].geometry.location);
         createMarker(results[1].geometry.location);
       }
@@ -45,42 +80,32 @@ function geocodeAddress(location) {
     }); 
   }
   
+  //create a marker at every properly geocoded address.
   function createMarker(latlng,html){
     var marker = new google.maps.Marker({
       position: latlng,
-      map: map
+      map: map,
+	  icon: image
     }); 
-  
+
+	//create the information window
+	const infowindow = new google.maps.InfoWindow();
+
+	//this is where we want to put the column name + associated data 
+	//date: 01/01/2021 intersection: street x, street y incident: incident data
+	var html = "<h1>Frank</h1>";
+	
+	//Creates the information window on mouseover
     google.maps.event.addListener(marker, 'mouseover', function() { 
       infowindow.setContent(html);
       infowindow.open(map, marker);
     });
-          
+    
+	//Closes the information window on mouseover
     google.maps.event.addListener(marker, 'mouseout', function() { 
       infowindow.close();
     });
   }
 
-//create the type of marker we want to use
-const image = {
-    url:'./pig.png',
-    scaledSize: new google.maps.Size(24,24)
-  };
-
-//places the marker in the right location
-var marker = new google.maps.Marker({
-    position:{lat:43.5465, lng: -96.7315},
-    map:map,
-    icon:image
-
-});
-
-var infoWindow=new google.maps.InfoWindow({
-    content:'<h1>Sioux Falls</h1>'
-});
-
-marker.addListener('click', function(){
-    infoWindow.open(map,marker);
-});
 
 }
