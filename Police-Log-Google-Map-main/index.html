@@ -5,6 +5,8 @@ Dependencies: index.js and map.css-->
 <html>
 <div id = "container">
 	<header>
+	<!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<!--calls the map-->
 	<script
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnuJEbfZaz_c-R1s9eq8b4BA56LoJrl2g&callback=initMap&libraries=&v=weekly" async></script>
@@ -25,9 +27,11 @@ Dependencies: index.js and map.css-->
 			 <button type="button" class="btn btn-primary">Towing</button></br>
 			 <button type="button" class="btn btn-primary">Routing</button></br>
 			 <button type="button" class="btn btn-primary">Police Log</button></br>
-			 <button type="button" class="btn btn-primary">Graphing</button></br>
+			 <button type="button" class="btn btn-primary" onclick = "showChart()">Graphing</button></br>
+			 <div id="chart_div"></div>
 		</div>
 		<div id="map"></div>
+		
 	</body>
 </div>
 </html>
