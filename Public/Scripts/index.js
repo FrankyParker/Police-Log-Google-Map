@@ -19,9 +19,10 @@ var locations =[
 /********************************/
 //create variable counter to help in getting every 6th item in the array
 var counter = 1;
+var addressList = [];
 function getData(){
   //create the var info to create the table from the array
-  var info = "<table class = 'table table-striped'><tr><th>Date</th><th>Street Name</th><th>Closester Intersection</th><th>Call Type</th><th>Incident Number</th><th>CFS Dispo</th></tr><tr>";
+  var info = "<table class = 'table table-border table-striped'><tr><th>Date</th><th>Street Name</th><th>Closester Intersection</th><th>Call Type</th><th>Incident Number</th><th>CFS Dispo</th></tr><tr>";
   var infoString= document.getElementById("data").innerHTML;
   var infoArray = infoString.split(',');
   for (i = 0; i < infoArray.length; i++){
@@ -36,10 +37,32 @@ function getData(){
          info += "<td>" + infoArray[i] + "</td></tr><tr>"
     }
   }
+  counter = 1;
   info += "</table>"
   document.getElementById("infotable").innerHTML= info;
-}
-
+  var address = [];
+  for (i = 0; i < infoArray.length; i++){
+    counter ++;
+  if(counter<7){
+    if (counter == 4){
+      if (infoArray[i] ==""){
+        address.push("311 E 14th St Sioux Falls SD");
+      }
+      else{
+        address.push(infoArray[i] + " Sioux Falls SD");
+      }
+    }
+    else{
+      address.push(infoArray[i]);
+    }
+  }
+  else{
+    addressList.push(address);
+    counter=1;
+    address=[];
+  }
+  };
+};
 
 /*******************************/
 /**       CHART SECTION       **/
@@ -242,9 +265,9 @@ function initMap(){
             };
         var marker = new google.maps.Marker({
         position: pos,
-        map: map
+        map: map,
+        icon:myLocationImage
       }); 
-            map.setCenter(pos);
           },
           () => {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -259,30 +282,34 @@ var geocoder = new google.maps.Geocoder();
 //Counting variable for access the address array.
 var marker, i;
 //Runs the geocode address function from the web scraped data.
-for (i = 0; i < locations.length; i++) {
-  geocodeAddress(locations[i]);
+for (i = 0; i < 10; i++) {
+  geocodeAddress(addressList[i]);
 }
 
 //function to geocode the address and handle errors.
 function geocodeAddress(location) {
-    geocoder.geocode( { 'address': location[1]}, function(results, status) {
+    geocoder.geocode( { 'address': location[2]}, function(results, status) {
     //alert(status);
       if (status == google.maps.GeocoderStatus.OK) {
-  
+        var tableHeader = "<table class = 'table table-bordered table-striped'><th scope = 'col'></th><th scope = 'col'></th><tr>";
+        var html = tableHeader + "<td style = 'text-align: right'>Date</td><td>" + location[0] + "</td></tr><tr><td style = 'text-align: right'>Street</td><td>" +
+         location[1] + "</td></tr><tr><td>Intersection</td><td>" + location[2] 
+         + "</td></tr><tr><td style = 'text-align: right'>Crime</td><td>" + location[3]  + "</td></tr><tr><<td style = 'text-align: right'>Dispo</td><td>" + location[4] +
+         "</td></tr>" + "</table>";
         //alert(results[1].geometry.location);
-        map.setCenter(results[1].geometry.location);
-        createMarker(results[1].geometry.location);
+        map.setCenter(results[0].geometry.location);
+        createMarker(results[0].geometry.location,html);
       }
       else
       {
-        alert("some problem in geocode" + status);
+        alert("some problem in geocode" + status + location[2]);
       }
     }); 
   }
 
 
   /************* START MARKER APPEARANCE SECTION ***************/
-  /* 
+
     const image = {
       url:'../Resources/pig.png',
       scaledSize: new google.maps.Size(24,24)
@@ -290,7 +317,7 @@ function geocodeAddress(location) {
     const myLocationImage={
     url: '../Resources/myLocation.svg',
     scaledSize: new google.maps.Size(50,50)
-    }; */
+    };
   /*************** END MARKER APPEARANCE SECTION ******************/
 
   /********************CREATE MARKERS************************ */
@@ -298,7 +325,8 @@ function geocodeAddress(location) {
   function createMarker(latlng,html){
     var marker = new google.maps.Marker({
       position: latlng,
-      map: map
+      map: map,
+      icon:image
     }); 
   /******************** END MARKER CREATION ******************/
 
@@ -306,8 +334,7 @@ function geocodeAddress(location) {
 	//create the information window
     const infowindow = new google.maps.InfoWindow();
     //this is where we want to put the column name + associated data 
-    //date: 01/01/2021 intersection: street x, street y incident: incident data
-    var html = "<h1>Frank</h1>";
+
 	
 	//Creates the information window on mouseover
     google.maps.event.addListener(marker, 'mouseover', function() { 
